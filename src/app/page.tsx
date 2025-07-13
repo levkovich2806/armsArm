@@ -1,95 +1,75 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
+
+import { useEffect, useState } from 'react';
+import styles from './page.module.css';
+
+// URL защищенного API
+const API_URL = 'https://212.127.78.182:8444/arm/v1/user';
+
+interface User {
+  // Замените на реальную структуру вашего объекта пользователя
+  id: string;
+  name: string;
+  email: string;
+}
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+  useEffect(() => {
+    async function fetchUser() {
+      console.log('Attempting to fetch user data...');
+      try {
+        // credentials: 'include' очень важен, чтобы браузер отправлял cookie
+        // на другой домен (cross-origin).
+        const response = await fetch(API_URL, {
+          method: 'GET',
+          // credentials: 'include', // важно если куки или сессия
+          // mode: 'cors', // по умолчанию уже стоит для cross-origin, но можно явно указать
+        });
+
+        // Если ответа нет (статус 0) или это непрозрачный редирект,
+        // браузер сам обработает перенаправление на страницу логина.
+        // fetch в этом случае вызовет ошибку, которая будет поймана в catch.
+        if (!response.ok) {
+          // Этот блок сработает, если API вернет ошибку (например, 401/403) без редиректа.
+          setError(`Ошибка аутентификации: Статус ${response.status}. Ожидается редирект...`);
+          setIsLoading(false);
+          return;
+        }
+
+        const data = await response.json();
+        setUser(data);
+        console.log('User data fetched successfully:', data);
+      } catch (e) {
+        // Эта ошибка, скорее всего, означает, что браузер инициировал
+        // перенаправление на страницу входа из-за cross-origin политики.
+        // Ничего делать не нужно, пользователь вернется сюда после логина.
+        console.error('Fetch failed, likely due to auth redirect:', e);
+        setError('Перенаправление на страницу аутентификации...');
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchUser();
+  }, []); // Пустой массив зависимостей гарантирует, что эффект выполнится один раз при монтировании
+
+  return (
+    <main className={styles.main}>
+      <div className={styles.description}>
+        <h1>ARM</h1>
+        {isLoading && <p>Загрузка данных пользователя...</p>}
+        {error && !user && <p>{error}</p>}
+        {user && (
+          <div>
+            <h2>Добро пожаловать!</h2>
+            <pre>{JSON.stringify(user, null, 2)}</pre>
+          </div>
+        )}
+      </div>
+    </main>
   );
 }
