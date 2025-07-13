@@ -22,13 +22,16 @@ export default function Home() {
     async function fetchUser() {
       console.log('Attempting to fetch user data...');
       try {
-        // credentials: 'include' очень важен, чтобы браузер отправлял cookie
-        // на другой домен (cross-origin).
         const response = await fetch(API_URL, {
           method: 'GET',
-          // credentials: 'include', // важно если куки или сессия
-          // mode: 'cors', // по умолчанию уже стоит для cross-origin, но можно явно указать
+          mode: 'cors',
+          credentials: 'include',
+          headers: {
+            'Accept': 'text/html;application/json', // 👈 ключевой момент
+          },
         });
+
+        console.log('Response:', response);
 
         // Если ответа нет (статус 0) или это непрозрачный редирект,
         // браузер сам обработает перенаправление на страницу логина.
