@@ -1,5 +1,5 @@
 import { Button, Form, Input } from "antd"
-import {useCallback} from "react";
+import { useCallback } from "react";
 
 type Props = {
   merchantId: number
@@ -11,7 +11,7 @@ const CloseReasonForm = (props: Props) => {
 
   const handleSubmit = useCallback((values: { reason: string }) => {
     onSubmit(merchantId, values.reason)
-  }, [])
+  }, [merchantId, onSubmit])
 
   return (
     <div>

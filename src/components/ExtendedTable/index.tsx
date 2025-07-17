@@ -1,10 +1,9 @@
 import { memo, useCallback, useMemo } from 'react'
 import { Button, DatePicker, Input, Space, Table, TablePaginationConfig } from 'antd'
-// import { User } from '../../types/users'
 import { ColumnType } from 'antd/es/table'
 import { FilterValue, SorterResult, TableCurrentDataSource } from 'antd/es/table/interface'
 import { CalendarOutlined, SearchOutlined } from '@ant-design/icons'
-import { ColumnProps, TableParamsChange } from '../../types/common'
+import { ColumnProps, TableParamsChange } from '@/types/common'
 import styles from './index.module.css'
 
 type Props<T> = {
@@ -78,7 +77,7 @@ function ExtendedTable<T extends object>(props: Props<T>) {
                 return (
                     <div className={styles.filterContent} onKeyDown={e => e.stopPropagation()}>
                         <DatePicker
-                            onChange={(date, dateString: string) => setSelectedKeys(dateString ? [dateString] : [])}
+                            onChange={(date, dateString: string | string[]) => setSelectedKeys(typeof dateString === 'string' && dateString ? [dateString] : [])}
                             className={styles.filterInput}
                         />
                         <Space>
