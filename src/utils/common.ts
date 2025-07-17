@@ -118,6 +118,7 @@ export const makePageNavigator = <T>({
         }
     }).filter(Boolean) as FilterList[]
 
+    // @ts-ignore
     const sortList = sorter && sorter.columnKey ? [
         {
             field: sorter.columnKey,
