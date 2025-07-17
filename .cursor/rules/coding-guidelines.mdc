@@ -1,0 +1,19 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+General
+- Never leave unused or commented out code, delete it immediately
+- Never add code in advance which might be useful in future or might potentially be useful
+- Always write comments in TypeScript code in Russian language (both "//" and "/*" comments)
+- Never add console.log or console.warn statements unless explicitly requested
+- After generation is finished, recheck that there are no unused exports or imports present in the files you change
+- Never keep code marked as @deprecated, immediately refactor usages and delete @deprecated code
+- When creating new types, interfaces, functions or classes first search the code if exactly matching identifier exists, reuse it
+
+Coding style
+- Use indentation of 2 spaces
+- Use dangling comma
+- Do not use "export default"
+- Do not create index files

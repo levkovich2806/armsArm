@@ -1,0 +1,210 @@
+import { ColumnProps, TableParamsChange } from '@/types/common'
+import { FilterList, PageNavigator, SortList } from '@/types/api'
+
+export const makeQueryAndFilters = <T>({
+    tableParamsData,
+    extraColumnProps,
+}: {
+    tableParamsData: TableParamsChange<T>
+    extraColumnProps: Record<string, ColumnProps>
+}) => {
+    const { extra, filters, pagination, sorter } = tableParamsData
+
+    const query = {
+        skip: 0,
+        count: Number(process.env.NEXT_PUBLIC_DEFAULT_TABLE_PAGE_SIZE) || 10,
+    } as Query
+
+    if (sorter) {
+        query.sort_field = !Array.isArray(sorter) ? sorter.columnKey?.toString() : undefined
+        query.sort_order = !Array.isArray(sorter)
+            ? sorter.order === 'ascend'
+                ? 1
+                : sorter.order === 'descend'
+                ? -1
+                : undefined
+            : undefined
+    }
+
+    if (pagination) {
+        query.count = Number(pagination.pageSize)
+        query.skip = (pagination.current && pagination.pageSize && (pagination.current - 1) * pagination.pageSize) ?? 0
+    }
+
+    const filter = Object.keys(filters ?? {}).reduce((rest, key) => {
+        const filterValue = filters[key]
+        const { valueType } = extraColumnProps[key] || {}
+
+        if (filterValue) {
+            if (valueType !== 'array') {
+                const value = filterValue[0]
+                rest[key] = valueType === 'number' ? Number(value) : value
+            } else {
+                rest[key] = filterValue
+            }
+        }
+
+        return rest
+    }, {} as Record<string, any>)
+
+    return {
+        filter,
+        query,
+    }
+}
+// PageNavigator example
+// {
+//     "pageNum": 1,
+//     "pageSize": 15,
+//     "filter": {
+//       "list": [
+//         {
+//           "field": "gtin",
+//           "oper": "IN",
+//           "values": [
+//             "0194252707456"
+//           ],
+//           "isCaseSensitive": 0
+//         },
+//         {
+//           "field": "wh",
+//           "oper": "IN",
+//           "values": [
+//             "test_1",
+//             "test_3",
+//             "test_5"
+//           ],
+//           "isCaseSensitive": 0
+//         }
+//       ]
+//     }
+//   }
+
+
+
+export const makePageNavigator = <T>({
+    tableParamsData,
+    extraColumnProps,
+}: {
+    tableParamsData: TableParamsChange<T>
+    extraColumnProps: Record<string, ColumnProps>
+}): PageNavigator => {
+    const { pagination, filters, sorter, extra } = tableParamsData
+
+    const pageNum = pagination?.current ?? 1
+    const pageSize = pagination?.pageSize ?? 10
+
+    const filterList = Object.keys(filters ?? {}).map((key) => {
+        const filterValue = filters[key]
+        const { valueType } = extraColumnProps[key] || {}
+
+        if (filterValue) {
+            if (valueType !== 'array') {
+                const value = filterValue[0]
+                return {
+                    field: key,
+                    oper: valueType === 'number' ? 'IN' : 'LIKE',
+                    values: valueType === 'number' ? [Number(value)] : [value],
+                    isCaseSensitive: 0,
+                }
+            } else {
+                return {
+                    field: key,
+                    oper: 'IN',
+                    values: filterValue,
+                    isCaseSensitive: 0,
+                }
+            }
+        }
+    }).filter(Boolean) as FilterList[]
+
+    const sortList = sorter && sorter.columnKey ? [
+        {
+            field: sorter.columnKey,
+            order: sorter.order === 'ascend' ? 'ASC' : 'DESC',
+        }
+    ] : [] as SortList[]
+
+
+    return {
+        pageNum,
+        pageSize,
+        filter: {
+            list: filterList,
+        },
+        sort: {
+            sortList
+        }
+    }
+}
+
+export const addFiltersDataToColumns = <T = {}>(extraColumnProps: Record<string, ColumnProps>, props: T) => {
+    return Object.keys(extraColumnProps).reduce((rest, key) => {
+        const filter = extraColumnProps[key]
+
+        // @ts-ignore
+        rest[key] = {
+            ...filter,
+        }
+
+        if (filter.filterDataKey) {
+            // @ts-ignore
+            rest[key].filterData = (props[filter.filterDataKey] ?? []).map(it => {
+                return {
+                    value: it.id,
+                    text: it.name,
+                }
+            })
+        }
+
+        return rest
+    }, {})
+}
+
+export type Query = {
+    skip?: number
+    count?: number
+    sort_field?: string
+    sort_order?: 1 | -1
+}
+
+export const addQueryToUrl = (url: string, query: Query) => {
+    const { skip, count, sort_order, sort_field } = query
+
+    if (!url.includes('?')) {
+        url += '?'
+    }
+    // else {
+    //     url += '&'
+    // }
+
+    if (typeof skip !== 'undefined') {
+        if (!url.endsWith('?')) {
+            url += '&'
+        }
+        url += `skip=${skip}`
+    }
+
+    if (typeof count !== 'undefined') {
+        if (!url.endsWith('?')) {
+            url += '&'
+        }
+        url += `count=${count}`
+    }
+
+    if (typeof sort_field !== 'undefined') {
+        if (!url.endsWith('?')) {
+            url += '&'
+        }
+        url += `sort_field=${sort_field}`
+    }
+
+    if (typeof sort_order !== 'undefined') {
+        if (!url.endsWith('?')) {
+            url += '&'
+        }
+        url += `sort_order=${sort_order}`
+    }
+
+    return url
+}

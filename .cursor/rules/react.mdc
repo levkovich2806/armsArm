@@ -1,0 +1,13 @@
+---
+description: 
+globs: *.tsx
+alwaysApply: false
+---
+React
+- Do not inline styles into React JSX unless urgently necessary
+- Never use FC type
+- Do not use useMemo, useCallback, React.memo unless absolutely necessary, we are using React compiler for that
+- If there are more than 30 lines of non-JSX code in a component, try to extract related code as hooks to simplify the component
+- If new hooks are added, recheck that they are not called conditionally
+- Common reusable components are in `src/components/common` folder
+- Before implementing a new component, check if it is not already implemented in `src/components/common`

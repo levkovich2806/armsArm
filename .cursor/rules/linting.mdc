@@ -1,0 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Linting
+- After generation is finished, always run "npm run lint:fix" unconditionally
+- Never run "npm run lint" or "npx next lint" or "npx eslint ." after "npm run lint:fix" was already run

@@ -1,59 +1,26 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import styles from './page.module.css';
+import { Layout, Menu, Button } from 'antd';
+import { MenuUnfoldOutlined, MenuFoldOutlined, UserOutlined, DashboardOutlined } from '@ant-design/icons';
+import { menuApi } from '@/services/menu';
 
-// URL защищенного API
-const API_URL = 'https://212.127.78.182:8444/arm/v1/user';
-
-interface User {
-  // Замените на реальную структуру вашего объекта пользователя
-  id: string;
-  name: string;
-  email: string;
-}
+const { Header, Sider, Content } = Layout;
 
 export default function Home() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     async function fetchUser() {
       console.log('Attempting to fetch user data...');
       try {
-        const response = await fetch(API_URL, {
-          method: 'GET',
-          mode: 'cors',
-          credentials: 'include',
-          headers: {
-            'Accept': 'text/html;application/json', // 👈 ключевой момент
-          },
-        });
-
+        const response = await menuApi.getMenu()
         console.log('Response:', response);
-
-        // Если ответа нет (статус 0) или это непрозрачный редирект,
-        // браузер сам обработает перенаправление на страницу логина.
-        // fetch в этом случае вызовет ошибку, которая будет поймана в catch.
-        if (!response.ok) {
-          // Этот блок сработает, если API вернет ошибку (например, 401/403) без редиректа.
-          setError(`Ошибка аутентификации: Статус ${response.status}. Ожидается редирект...`);
-          setIsLoading(false);
-          return;
-        }
-
-        const data = await response.json();
-        setUser(data);
-        console.log('User data fetched successfully:', data);
       } catch (e) {
         // Эта ошибка, скорее всего, означает, что браузер инициировал
         // перенаправление на страницу входа из-за cross-origin политики.
         // Ничего делать не нужно, пользователь вернется сюда после логина.
         console.error('Fetch failed, likely due to auth redirect:', e);
-        setError('Перенаправление на страницу аутентификации...');
-      } finally {
-        setIsLoading(false);
       }
     }
 
@@ -61,18 +28,48 @@ export default function Home() {
   }, []); // Пустой массив зависимостей гарантирует, что эффект выполнится один раз при монтировании
 
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <h1>ARM</h1>
-        {isLoading && <p>Загрузка данных пользователя...</p>}
-        {error && !user && <p>{error}</p>}
-        {user && (
+    <Layout style={{ minHeight: '100vh' }}>
+      <Sider trigger={null} collapsible collapsed={collapsed}>
+        <div style={{ height: 32, margin: 16, background: 'rgba(255, 255, 255, 0.2)' }} />
+        <Menu
+          theme="dark"
+          mode="inline"
+          defaultSelectedKeys={['1']}
+          items={[
+            {
+              key: '1',
+              icon: <DashboardOutlined />,
+              label: 'Главная',
+            },
+            {
+              key: '2',
+              icon: <UserOutlined />,
+              label: 'Профиль',
+            },
+          ]}
+        />
+      </Sider>
+      <Layout>
+        <Header style={{ padding: 0 }}>
+          <Button
+            type="text"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => setCollapsed(!collapsed)}
+            style={{
+              fontSize: '16px',
+              width: 64,
+              height: 64,
+              color: '#fff',
+            }}
+          />
+          <span style={{ fontSize: '18px', fontWeight: 'bold', color: '#fff' }}>ARM - Автоматизированное рабочее место</span>
+        </Header>
+        <Content>
           <div>
-            <h2>Добро пожаловать!</h2>
-            <pre>{JSON.stringify(user, null, 2)}</pre>
+            <h1>Hello World</h1>
           </div>
-        )}
-      </div>
-    </main>
+        </Content>
+      </Layout>
+    </Layout>
   );
 }
