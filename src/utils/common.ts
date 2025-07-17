@@ -118,13 +118,21 @@ export const makePageNavigator = <T>({
         }
     }).filter(Boolean) as FilterList[]
 
-    // @ts-ignore
-    const sortList = sorter && sorter.columnKey ? [
-        {
-            field: sorter.columnKey,
-            order: sorter.order === 'ascend' ? 'ASC' : 'DESC',
-        }
-    ] : [] as SortList[]
+    const sortList = sorter ? (
+        Array.isArray(sorter) 
+            ? sorter.length > 0 && sorter[0].columnKey 
+                ? [{
+                    field: sorter[0].columnKey.toString(),
+                    order: sorter[0].order === 'ascend' ? 'ASC' : 'DESC',
+                  }] 
+                : []
+            : sorter.columnKey 
+                ? [{
+                    field: sorter.columnKey.toString(),
+                    order: sorter.order === 'ascend' ? 'ASC' : 'DESC',
+                  }]
+                : []
+    ) : [] as SortList[]
 
 
     return {
