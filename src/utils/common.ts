@@ -74,7 +74,7 @@ export const makePageNavigator = <T>({
                 const value = filterValue[0]
                 return {
                     field: key,
-                    oper: valueType === 'number' ? 'IN' : 'LIKE',
+                    oper: valueType === 'number' ? 'IN' : '%LIKE%',
                     values: valueType === 'number' ? [Number(value)] : [value],
                     isCaseSensitive: 0,
                 }
@@ -118,9 +118,9 @@ export const makePageNavigator = <T>({
     }
 }
 
-export const addFiltersDataToColumns = <T = object>(
+export const addFiltersDataToColumns = <T = object, P extends Record<string, unknown> = Record<string, unknown>>(
   extraColumnProps: Record<string, ColumnProps<T>>, 
-  props: Record<string, { id: number; name: string }[] | unknown>
+  props: P
 ): Record<string, ColumnProps<T>> => {
     return Object.keys(extraColumnProps).reduce((rest, key) => {
         const filter = extraColumnProps[key]
@@ -130,7 +130,8 @@ export const addFiltersDataToColumns = <T = object>(
         }
 
         if (filter.filterDataKey && typeof filter.filterDataKey === 'string') {
-            rest[key].filterData = ((props[filter.filterDataKey] as { id: number; name: string }[]) ?? []).map((it: { id: number; name: string }) => {
+            const filterData = props[filter.filterDataKey as keyof P] as { id: number; name: string }[] | undefined
+            rest[key].filterData = (filterData ?? []).map((it: { id: number; name: string }) => {
                 return {
                     value: it.id,
                     text: it.name,

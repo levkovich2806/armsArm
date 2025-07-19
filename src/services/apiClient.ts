@@ -12,6 +12,8 @@ interface RequestHeaders {
   [key: string]: string | undefined
 }
 
+export const API_BASE_URL = process.env.NEXT_PUBLIC_BASE_URL
+
 export const apiClient = async <T>({ url, method, data, headers = {} }: ApiRequest): Promise<T> => {
   const requestHeaders: RequestHeaders = {
     'Content-Type': 'application/json',
@@ -19,7 +21,7 @@ export const apiClient = async <T>({ url, method, data, headers = {} }: ApiReque
   }
 
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}${url}`, {
+    const response = await fetch(`${API_BASE_URL}${url}`, {
       method,
       headers: requestHeaders as Record<string, string>,
       body: data ? JSON.stringify(data) : undefined,

@@ -1,5 +1,5 @@
 import ExtendedTable from "@/components/ExtendedTable"
-import { Merchant, MerchantResponse } from "@/types/api"
+import { Merchant } from "@/types/api"
 import { ColumnProps, TableParamsChange } from "@/types/common"
 import { addFiltersDataToColumns } from "@/utils/common"
 import { Button, Modal, Space } from "antd"
@@ -8,7 +8,7 @@ import CloseReasonForm from "./CloseReasonForm"
 import { ColumnType } from "antd/es/table"
 
 type Props = {
-  data: MerchantResponse['list']
+  data: Merchant[]
   isLoading: boolean
   onTableParamsChange: (params: TableParamsChange<Merchant>) => void
   total: number

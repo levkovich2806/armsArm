@@ -11,6 +11,14 @@ export interface MenuItem {
 
 export type MenuResponse = BaseResponse<MenuItem>
 
+export interface AnType {
+  anType: number
+  anTypeName: string
+  isOpen: boolean // 1 or 0
+}
+
+export type AnTypeResponse = BaseResponse<AnType>
+
 type MerchantBase = {
   merchantName: string
   description: string
