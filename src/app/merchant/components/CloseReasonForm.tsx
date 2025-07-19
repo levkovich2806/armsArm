@@ -1,5 +1,5 @@
 import { Button, Form, Input } from "antd"
-import { useCallback } from "react";
+import { useCallback } from "react"
 
 type Props = {
   merchantId: number

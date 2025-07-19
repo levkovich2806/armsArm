@@ -1,5 +1,5 @@
-import { ColumnProps, TableParamsChange } from '@/types/common'
 import { FilterList, PageNavigator, SortList } from '@/types/api'
+import { ColumnProps, TableParamsChange } from '@/types/common'
 
 export const makeQueryAndFilters = <T>({
     tableParamsData,
@@ -8,7 +8,7 @@ export const makeQueryAndFilters = <T>({
     tableParamsData: TableParamsChange<T>
     extraColumnProps: Record<string, ColumnProps>
 }) => {
-    const { extra, filters, pagination, sorter } = tableParamsData
+    const { filters, pagination, sorter } = tableParamsData
 
     const query = {
         skip: 0,
@@ -45,42 +45,13 @@ export const makeQueryAndFilters = <T>({
         }
 
         return rest
-    }, {} as Record<string, any>)
+    }, {} as Record<string, unknown>)
 
     return {
         filter,
         query,
     }
 }
-// PageNavigator example
-// {
-//     "pageNum": 1,
-//     "pageSize": 15,
-//     "filter": {
-//       "list": [
-//         {
-//           "field": "gtin",
-//           "oper": "IN",
-//           "values": [
-//             "0194252707456"
-//           ],
-//           "isCaseSensitive": 0
-//         },
-//         {
-//           "field": "wh",
-//           "oper": "IN",
-//           "values": [
-//             "test_1",
-//             "test_3",
-//             "test_5"
-//           ],
-//           "isCaseSensitive": 0
-//         }
-//       ]
-//     }
-//   }
-
-
 
 export const makePageNavigator = <T>({
     tableParamsData,
@@ -89,7 +60,7 @@ export const makePageNavigator = <T>({
     tableParamsData: TableParamsChange<T>
     extraColumnProps: Record<string, ColumnProps>
 }): PageNavigator => {
-    const { pagination, filters, sorter, extra } = tableParamsData
+    const { pagination, filters, sorter } = tableParamsData
 
     const pageNum = pagination?.current ?? 1
     const pageSize = pagination?.pageSize ?? 10
@@ -147,17 +118,17 @@ export const makePageNavigator = <T>({
     }
 }
 
-export const addFiltersDataToColumns = <T = {}>(extraColumnProps: Record<string, ColumnProps>, props: T) => {
+export const addFiltersDataToColumns = <T = object>(extraColumnProps: Record<string, ColumnProps>, props: T) => {
     return Object.keys(extraColumnProps).reduce((rest, key) => {
         const filter = extraColumnProps[key]
 
-        // @ts-ignore
+        // @ts-expect-error - filterDataKey is not defined in the ColumnProps type
         rest[key] = {
             ...filter,
         }
 
         if (filter.filterDataKey) {
-            // @ts-ignore
+            // @ts-expect-error - filterDataKey is not defined in the ColumnProps type
             rest[key].filterData = (props[filter.filterDataKey] ?? []).map(it => {
                 return {
                     value: it.id,

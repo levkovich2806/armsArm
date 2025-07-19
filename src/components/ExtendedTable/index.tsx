@@ -1,9 +1,9 @@
-import { memo, useCallback, useMemo } from 'react'
+import { ColumnProps, TableParamsChange } from '@/types/common'
+import { CalendarOutlined, SearchOutlined } from '@ant-design/icons'
 import { Button, DatePicker, Input, Space, Table, TablePaginationConfig } from 'antd'
 import { ColumnType } from 'antd/es/table'
 import { FilterValue, SorterResult, TableCurrentDataSource } from 'antd/es/table/interface'
-import { CalendarOutlined, SearchOutlined } from '@ant-design/icons'
-import { ColumnProps, TableParamsChange } from '@/types/common'
+import { memo, useCallback, useMemo } from 'react'
 import styles from './index.module.css'
 
 type Props<T> = {
@@ -42,7 +42,7 @@ function ExtendedTable<T extends object>(props: Props<T>) {
 
     const getColumnSearchProps = useCallback(
         (dataIndex: DataIndex): ColumnType => ({
-            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, close }) => (
                 <div className={styles.filterContent} onKeyDown={e => e.stopPropagation()}>
                     <Input
                         placeholder={`Search ${dataIndex}`}
@@ -72,8 +72,8 @@ function ExtendedTable<T extends object>(props: Props<T>) {
     )
 
     const getColumnCalendarSearchProps = useCallback(
-        (dataIndex: DataIndex): ColumnType => ({
-            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => {
+        (): ColumnType => ({
+            filterDropdown: ({ setSelectedKeys, confirm, close }) => {
                 return (
                     <div className={styles.filterContent} onKeyDown={e => e.stopPropagation()}>
                         <DatePicker
@@ -103,24 +103,24 @@ function ExtendedTable<T extends object>(props: Props<T>) {
 
     const tableColumns = useMemo(() => {
         return columns.map(it => {
-            // @ts-ignore
+            // @ts-expect-error - key is not defined in the ColumnProps type
             const { key } = it
 
-            // @ts-ignore
+            // @ts-expect-error - key is not defined in the ColumnProps type
             if (key && extraColumnsProps[key.toString()]) {
-                // @ts-ignore
+                // @ts-expect-error - key is not defined in the ColumnProps type
                 const { customFilter } = extraColumnsProps[key.toString()]
                 if (customFilter) {
                     switch (customFilter) {
                         case 'simpleSearch':
                             return {
-                                // @ts-ignore
+                                // @ts-expect-error - key is not defined in the ColumnProps type
                                 ...it,
-                                // @ts-ignore
+                                // @ts-expect-error - key is not defined in the ColumnProps type
                                 ...getColumnSearchProps(it.key),
                             }
                         case 'dateSearch':
-                            // @ts-ignore
+                            // @ts-expect-error - key is not defined in the ColumnProps type
                             return { ...it, ...getColumnCalendarSearchProps(it.key) }
                     }
                 }
@@ -130,7 +130,7 @@ function ExtendedTable<T extends object>(props: Props<T>) {
         })
     }, [columns, extraColumnsProps, getColumnCalendarSearchProps, getColumnSearchProps])
 
-    // @ts-ignore
+    // @ts-expect-error - rowKey is not defined in the TableProps type
     return (
         <Table
             scroll={{ x: 'max-content', y: 600 }}

@@ -1,4 +1,4 @@
-import { ThemeConfig } from 'antd';
+import { ThemeConfig } from 'antd'
 
 // Конфигурация темы Ant Design
 export const theme: ThemeConfig = {
@@ -16,4 +16,4 @@ export const theme: ThemeConfig = {
       darkItemBg: '#001529',
     },
   },
-}; 
+} 
