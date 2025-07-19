@@ -24,7 +24,6 @@ export const antypesExtraColumnProps: Record<string, ColumnProps>  = {
     valueType: 'string',
   },
   isOpen: {
-    customFilter: 'simpleSearch',
     valueType: 'array',
   },
 }
@@ -56,8 +55,8 @@ export default function AnTypeTable(props: AnTypeTableProps) {
         </Tag>
       ),
       filters: [
-        { text: 'Открыт', value: true },
-        { text: 'Закрыт', value: false },
+        { text: 'Открыт', value: 1 },
+        { text: 'Закрыт', value: 0 },
       ],
     },
   ]
