@@ -8,15 +8,13 @@ import styles from './index.module.css'
 
 type Props<T> = {
     data: T[]
-    columns: unknown[]
-    extraColumnsProps: Record<string, ColumnProps>
+    columns: ColumnType<T>[]
+    extraColumnsProps: Record<string, ColumnProps<T>>
     rowKey: string
     onTableParamsChange?: (params: TableParamsChange<T>) => void
     isLoading?: boolean
     pagination?: false | TablePaginationConfig
 }
-
-type DataIndex = unknown //keyof User
 
 function ExtendedTable<T extends object>(props: Props<T>) {
     const { pagination, data, columns, extraColumnsProps, rowKey, isLoading, onTableParamsChange } = props
@@ -41,11 +39,10 @@ function ExtendedTable<T extends object>(props: Props<T>) {
     )
 
     const getColumnSearchProps = useCallback(
-        (dataIndex: DataIndex): ColumnType => ({
+        (): ColumnType => ({
             filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, close }) => (
                 <div className={styles.filterContent} onKeyDown={e => e.stopPropagation()}>
                     <Input
-                        placeholder={`Search ${dataIndex}`}
                         value={selectedKeys[0]}
                         onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
                         onPressEnter={() => confirm()}
@@ -103,25 +100,19 @@ function ExtendedTable<T extends object>(props: Props<T>) {
 
     const tableColumns = useMemo(() => {
         return columns.map(it => {
-            // @ts-expect-error - key is not defined in the ColumnProps type
             const { key } = it
 
-            // @ts-expect-error - key is not defined in the ColumnProps type
             if (key && extraColumnsProps[key.toString()]) {
-                // @ts-expect-error - key is not defined in the ColumnProps type
                 const { customFilter } = extraColumnsProps[key.toString()]
                 if (customFilter) {
                     switch (customFilter) {
                         case 'simpleSearch':
                             return {
-                                // @ts-expect-error - key is not defined in the ColumnProps type
                                 ...it,
-                                // @ts-expect-error - key is not defined in the ColumnProps type
-                                ...getColumnSearchProps(it.key),
+                                ...getColumnSearchProps(),
                             }
                         case 'dateSearch':
-                            // @ts-expect-error - key is not defined in the ColumnProps type
-                            return { ...it, ...getColumnCalendarSearchProps(it.key) }
+                            return { ...it, ...getColumnCalendarSearchProps() }
                     }
                 }
             }
@@ -130,12 +121,11 @@ function ExtendedTable<T extends object>(props: Props<T>) {
         })
     }, [columns, extraColumnsProps, getColumnCalendarSearchProps, getColumnSearchProps])
 
-    // @ts-expect-error - rowKey is not defined in the TableProps type
     return (
         <Table
             scroll={{ x: 'max-content', y: 600 }}
             rowKey={rowKey}
-            columns={tableColumns}
+            columns={tableColumns as unknown as ColumnType<T>[]}
             dataSource={data}
             onChange={handleParamsChange}
             loading={isLoading}

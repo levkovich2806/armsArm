@@ -6,7 +6,7 @@ export const makeQueryAndFilters = <T>({
     extraColumnProps,
 }: {
     tableParamsData: TableParamsChange<T>
-    extraColumnProps: Record<string, ColumnProps>
+    extraColumnProps: Record<string, ColumnProps<T>>
 }) => {
     const { filters, pagination, sorter } = tableParamsData
 
@@ -58,7 +58,7 @@ export const makePageNavigator = <T>({
     extraColumnProps,
 }: {
     tableParamsData: TableParamsChange<T>
-    extraColumnProps: Record<string, ColumnProps>
+    extraColumnProps: Record<string, ColumnProps<T>>
 }): PageNavigator => {
     const { pagination, filters, sorter } = tableParamsData
 
@@ -118,18 +118,19 @@ export const makePageNavigator = <T>({
     }
 }
 
-export const addFiltersDataToColumns = <T = object>(extraColumnProps: Record<string, ColumnProps>, props: T) => {
+export const addFiltersDataToColumns = <T = object>(
+  extraColumnProps: Record<string, ColumnProps<T>>, 
+  props: Record<string, { id: number; name: string }[] | unknown>
+): Record<string, ColumnProps<T>> => {
     return Object.keys(extraColumnProps).reduce((rest, key) => {
         const filter = extraColumnProps[key]
 
-        // @ts-expect-error - filterDataKey is not defined in the ColumnProps type
         rest[key] = {
             ...filter,
         }
 
-        if (filter.filterDataKey) {
-            // @ts-expect-error - filterDataKey is not defined in the ColumnProps type
-            rest[key].filterData = (props[filter.filterDataKey] ?? []).map(it => {
+        if (filter.filterDataKey && typeof filter.filterDataKey === 'string') {
+            rest[key].filterData = ((props[filter.filterDataKey] as { id: number; name: string }[]) ?? []).map((it: { id: number; name: string }) => {
                 return {
                     value: it.id,
                     text: it.name,
@@ -138,7 +139,7 @@ export const addFiltersDataToColumns = <T = object>(extraColumnProps: Record<str
         }
 
         return rest
-    }, {})
+    }, {} as Record<string, ColumnProps<T>>)
 }
 
 export type Query = {

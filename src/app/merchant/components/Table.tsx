@@ -5,6 +5,7 @@ import { addFiltersDataToColumns } from "@/utils/common"
 import { Button, Modal, Space } from "antd"
 import { useMemo, useState } from "react"
 import CloseReasonForm from "./CloseReasonForm"
+import { ColumnType } from "antd/es/table"
 
 type Props = {
   data: MerchantResponse['list']
@@ -52,7 +53,7 @@ const MerchantTable = (props: Props) => {
   const [isCloseModalVisible, setIsCloseModalVisible] = useState(false)
   const [merchantId, setMerchantId] = useState<number | null>(null)
 
-  const columns = [
+  const columns: ColumnType<Merchant>[] = [
     {
       title: 'ID',
       dataIndex: 'merchantId',
@@ -72,21 +73,21 @@ const MerchantTable = (props: Props) => {
       dataIndex: 'dateOpen',
       key: 'dateOpen',
       width: 100,
-      sorter: (a: Merchant, b: Merchant) => a.dateOpen?.localeCompare(b.dateOpen ?? ''),
+      sorter: (a: Merchant, b: Merchant) => a.dateOpen?.localeCompare(b.dateOpen ?? '') ?? 0,
     },
     {
       title: 'Date Close',
       dataIndex: 'dateClose',
       key: 'dateClose',
       width: 100,
-      sorter: (a: Merchant, b: Merchant) => a.dateClose?.localeCompare(b.dateClose ?? ''),
+      sorter: (a: Merchant, b: Merchant) => a.dateClose?.localeCompare(b.dateClose ?? '') ?? 0,
     },
     {
       title: 'Description',
       dataIndex: 'description',
       key: 'description',
       width: 100,
-      sorter: (a: Merchant, b: Merchant) => a.description.localeCompare(b.description),
+      sorter: (a: Merchant, b: Merchant) => a.description.localeCompare(b.description) ?? 0,
     },
     {
       title: 'Prepaid Period',
@@ -123,7 +124,7 @@ const MerchantTable = (props: Props) => {
   ]
 
   const extraColumnPropsWithFiltersData = useMemo(() => {
-    return addFiltersDataToColumns<Props>(merchantsExtraColumnProps, props)
+    return addFiltersDataToColumns<Merchant>(merchantsExtraColumnProps, props)
   }, [props])
 
   const handleCloseMerchant = (merchantId: number, reason: string) => {

@@ -8,10 +8,10 @@ export type TableParamsChange<T> = {
     extra: TableCurrentDataSource<T>
 }
 
-export type ColumnProps = {
+export type ColumnProps<T = object> = {
     customFilter?: CustomFilter
     valueType?: ValueType
-    filterDataKey?: string //По этому ключу берем из props компонента
+    filterDataKey?: keyof T //По этому ключу берем из props компонента
     filterData?: TableDataParams[]
 }
 
